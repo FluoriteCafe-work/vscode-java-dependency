@@ -3,7 +3,7 @@ import { Upgrade } from "../constants";
 import { Commands } from "../commands";
 import metadataManager from "./metadataManager";
 
-export default class UpgradeProvider implements CodeActionProvider {
+export default class UpgradeCodeActionProvider implements CodeActionProvider {
     provideCodeActions(_document: TextDocument, _range: Range | Selection, context: CodeActionContext, _token: CancellationToken): ProviderResult<(CodeAction | Command)[]> {
         const actions: CodeAction[] = [];
 
