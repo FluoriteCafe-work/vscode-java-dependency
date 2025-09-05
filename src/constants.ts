@@ -35,6 +35,10 @@ export namespace ExtensionName {
     export const JAVA_LANGUAGE_SUPPORT: string = "redhat.java";
 }
 
+export namespace Upgrade {
+    export const DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE = "java-engine";
+}
+
 /**
  * The files names for all the build files we support.
  */
