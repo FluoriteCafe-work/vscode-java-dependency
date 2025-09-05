@@ -88,4 +88,4 @@ class MetadataManager {
 }
 
 const metadataManager = new MetadataManager();
-export default metadataManager;
+export default metadataManager; 
