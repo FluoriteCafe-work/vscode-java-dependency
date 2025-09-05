@@ -1,4 +1,5 @@
 import diagnosticsManager from "./display/diagnosticsManager";
+import notificationManager from "./display/notificationManager";
 import type { FileIssues, UpgradeIssue } from "./type";
 
 class IssueManager {
@@ -24,6 +25,7 @@ class IssueManager {
 
     private refreshDisplay(filePath: string, issues: FileIssues) {
         diagnosticsManager.refresh(filePath, issues);
+        notificationManager.refresh(issues);
     }
 }
 

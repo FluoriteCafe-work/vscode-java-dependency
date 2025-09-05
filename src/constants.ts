@@ -33,6 +33,7 @@ export namespace Explorer {
 
 export namespace ExtensionName {
     export const JAVA_LANGUAGE_SUPPORT: string = "redhat.java";
+    export const JAVA_UPGRADE_TOOL = "vscjava.vscode-java-upgrade";
 }
 
 export namespace Upgrade {

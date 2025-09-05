@@ -72,19 +72,6 @@ class MetadataManager {
             this.dependencyCheckMetadata = metadata.data ?? {};
         }
     }
-
-    public createPromptByGroupId(groupId: string): string {
-        if (groupId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
-            return "Upgrade project Java version to 21 with Java Upgrade Tool"
-        }
-
-        const dependencyMetadata = this.getDependencyMetadata(groupId);
-        if (dependencyMetadata) {
-            return `Upgrade ${dependencyMetadata.name} to a supported version with Java Upgrade Tool`
-        }
-
-        return `Upgrade ${groupId} to a supported version with Java Upgrade Tool`
-    }
 }
 
 const metadataManager = new MetadataManager();
