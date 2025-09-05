@@ -70,6 +70,8 @@ export namespace Commands {
 
     export const VIEW_MENUS_FILE_NEW_JAVA_CLASS = "java.view.menus.file.newJavaClass";
 
+    export const VIEW_TRIGGER_JAVA_UPGRADE_TOOL = "java.view.triggerJavaUpgradeTool";
+
     export const JAVA_PROJECT_OPEN = "_java.project.open";
 
     export const JAVA_PROJECT_CREATE = "java.project.create";

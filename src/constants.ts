@@ -37,6 +37,7 @@ export namespace ExtensionName {
 
 export namespace Upgrade {
     export const DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE = "java-engine";
+    export const PROMOTION_DIAGNOSTIC_SOURCE = "Java";
 }
 
 /**

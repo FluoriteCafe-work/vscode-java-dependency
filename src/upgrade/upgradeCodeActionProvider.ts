@@ -1,0 +1,33 @@
+import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Command, ProviderResult, Range, Selection, TextDocument } from "vscode";
+import { Upgrade } from "../constants";
+import { Commands } from "../commands";
+import metadataManager from "./metadataManager";
+
+export default class UpgradeProvider implements CodeActionProvider {
+    provideCodeActions(_document: TextDocument, _range: Range | Selection, context: CodeActionContext, _token: CancellationToken): ProviderResult<(CodeAction | Command)[]> {
+        const actions: CodeAction[] = [];
+
+        for (const diagnostic of context.diagnostics) {
+            if (diagnostic.source === Upgrade.PROMOTION_DIAGNOSTIC_SOURCE) {
+                const groupId = String(diagnostic.code);
+                const metadata = metadataManager.getDependencyMetadata(groupId);
+                const action = new CodeAction(
+                    metadata ?
+                        `Fix: Upgrade ${metadata.name} with Java Upgrade Tool` :
+                        `Fix: Upgrade with Java Upgrade Tool`,
+                    CodeActionKind.QuickFix
+                );
+
+                action.command = {
+                    title: "Upgrade",
+                    command: Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL,
+                    arguments: [metadataManager.createPromptByGroupId(groupId ?? "")]
+                }
+
+                actions.push(action);
+            }
+        }
+
+        return actions;
+    }
+}

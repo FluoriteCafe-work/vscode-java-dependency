@@ -44,14 +44,8 @@ async function httpsGet(urlString: string): Promise<string> {
     });
 }
 
-export default class MetadataManager {
+class MetadataManager {
     private dependencyCheckMetadata: DependencyCheckMetadata = {};
-    private context: ExtensionContext;
-
-    constructor(context: ExtensionContext) {
-        this.context = context;
-        this.tryRefreshMetadata();
-    }
 
     public getDependencyMetadata(groupId: string): DependencyCheckItem | undefined {
         if (groupId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
@@ -63,12 +57,12 @@ export default class MetadataManager {
         return this.dependencyCheckMetadata[groupId];
     }
 
-    private async tryRefreshMetadata() {
-        const metadata = this.context.globalState.get(METADATA_STORAGE_KEY) as MementoItem<DependencyCheckMetadata> | undefined;
+    public async tryRefreshMetadata(context: ExtensionContext) {
+        const metadata = context.globalState.get(METADATA_STORAGE_KEY) as MementoItem<DependencyCheckMetadata> | undefined;
         const nowTs = Number(new Date()) / 1000;
         if (!metadata || (nowTs - (metadata?.lastUpdatedTs ?? 0)) > METADATA_UPDATE_INTERVAL_IN_DAYS * 24 * 60 * 60) {
             const newMetadata = await fetchDependencyCheckMetadata();
-            this.context.globalState.update(METADATA_STORAGE_KEY, {
+            context.globalState.update(METADATA_STORAGE_KEY, {
                 lastUpdatedTs: nowTs,
                 data: newMetadata
             });
@@ -78,4 +72,20 @@ export default class MetadataManager {
             this.dependencyCheckMetadata = metadata.data ?? {};
         }
     }
+
+    public createPromptByGroupId(groupId: string): string {
+        if (groupId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
+            return "Upgrade project Java version to 21 with Java Upgrade Tool"
+        }
+
+        const dependencyMetadata = this.getDependencyMetadata(groupId);
+        if (dependencyMetadata) {
+            return `Upgrade ${dependencyMetadata.name} to a supported version with Java Upgrade Tool`
+        }
+
+        return `Upgrade ${groupId} to a supported version with Java Upgrade Tool`
+    }
 }
+
+const metadataManager = new MetadataManager();
+export default metadataManager;
