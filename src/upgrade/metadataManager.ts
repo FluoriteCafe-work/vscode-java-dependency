@@ -5,11 +5,12 @@ import type { IncomingMessage } from "http";
 import * as https from "https";
 import type { ExtensionContext } from "vscode";
 
-import type { DependencyCheckItem, DependencyCheckMetadata, MementoItem } from "./type";
+import type { DependencyCheckMetadata, DependencyCheckResult, MementoItem } from "./type";
 import { Upgrade } from "../constants";
+import { buildPackageId } from "./utility";
 
 // TODO: change
-const URL_DEPENDENCY_CHECK_METADATA = "https://gist.githubusercontent.com/FluoriteCafe-work/6126d5d93fe4e35c25c431d98bb9ff7e/raw/c01f7db84044a41e30b6c88fd9ee3cb4841d9e4d/data.json";
+const URL_DEPENDENCY_CHECK_METADATA = "https://gist.githubusercontent.com/FluoriteCafe-work/6126d5d93fe4e35c25c431d98bb9ff7e/raw/98a12c2e88bec82a0ec595d24cf1ed8628cfcabb/data.json";
 const METADATA_UPDATE_INTERVAL_IN_DAYS = 7;
 const METADATA_STORAGE_KEY = "dependencyCheckMetadata";
 
@@ -47,16 +48,23 @@ async function httpsGet(urlString: string): Promise<string> {
 class MetadataManager {
     private dependencyCheckMetadata: DependencyCheckMetadata = {};
 
-    public getDependencyMetadata(groupId: string, artifactId: string): DependencyCheckItem | undefined {
+    public getDependencyMetadata(groupId: string, artifactId: string): DependencyCheckResult | undefined {
         if (groupId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
             return {
                 name: "Java Engine",
                 supportedVersion: `>=${Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT}`,
+                rulePackageId: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
             }
         }
-        const packageId = groupId + ":" + artifactId;
-        const packageIdWithWildcardArtifactId = groupId + ":*";
-        return this.dependencyCheckMetadata[packageId] ?? this.dependencyCheckMetadata[packageIdWithWildcardArtifactId];
+        const packageId = buildPackageId(groupId, artifactId);
+        const packageIdWithWildcardArtifactId = buildPackageId(groupId, "*");
+        return this.dependencyCheckMetadata[packageId] ? {
+            ...this.dependencyCheckMetadata[packageId],
+            rulePackageId: packageId,
+        } : this.dependencyCheckMetadata[packageIdWithWildcardArtifactId] ? {
+            ...this.dependencyCheckMetadata[packageIdWithWildcardArtifactId],
+            rulePackageId: packageIdWithWildcardArtifactId,
+        } : undefined;
     }
 
     public async tryRefreshMetadata(context: ExtensionContext) {

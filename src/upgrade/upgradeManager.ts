@@ -117,7 +117,7 @@ class UpgradeManager {
         }
         if (!semver.satisfies(currentVersion, supportedVersionDefinition.supportedVersion)) {
             issueManager.addIssue(dependingPomPath, {
-                packageId: packageId,
+                packageId: supportedVersionDefinition.rulePackageId,
                 packageDisplayName: supportedVersionDefinition.name,
                 reason: UpgradeReason.END_OF_LIFE,
                 currentVersion: versionString,
