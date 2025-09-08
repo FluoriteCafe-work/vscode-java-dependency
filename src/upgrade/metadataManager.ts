@@ -61,12 +61,16 @@ class MetadataManager {
         const metadata = context.globalState.get(METADATA_STORAGE_KEY) as MementoItem<DependencyCheckMetadata> | undefined;
         const nowTs = Number(new Date()) / 1000;
         if (!metadata || (nowTs - (metadata?.lastUpdatedTs ?? 0)) > METADATA_UPDATE_INTERVAL_IN_DAYS * 24 * 60 * 60) {
-            const newMetadata = await fetchDependencyCheckMetadata();
-            context.globalState.update(METADATA_STORAGE_KEY, {
-                lastUpdatedTs: nowTs,
-                data: newMetadata
-            });
-            this.dependencyCheckMetadata = newMetadata;
+            const newMetadata = await fetchDependencyCheckMetadata().catch(() => null);
+            if (newMetadata !== null) {
+                context.globalState.update(METADATA_STORAGE_KEY, {
+                    lastUpdatedTs: nowTs,
+                    data: newMetadata
+                });
+                this.dependencyCheckMetadata = newMetadata;
+            } else {
+                this.dependencyCheckMetadata = {};
+            }
             return;
         } else {
             this.dependencyCheckMetadata = metadata.data ?? {};
