@@ -47,14 +47,14 @@ async function httpsGet(urlString: string): Promise<string> {
 class MetadataManager {
     private dependencyCheckMetadata: DependencyCheckMetadata = {};
 
-    public getDependencyMetadata(groupId: string): DependencyCheckItem | undefined {
-        if (groupId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
+    public getDependencyMetadata(packageId: string): DependencyCheckItem | undefined {
+        if (packageId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
             return {
                 name: "Java Engine",
                 supportedVersion: ">=21",
             }
         }
-        return this.dependencyCheckMetadata[groupId];
+        return this.dependencyCheckMetadata[packageId];
     }
 
     public async tryRefreshMetadata(context: ExtensionContext) {

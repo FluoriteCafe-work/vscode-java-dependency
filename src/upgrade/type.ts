@@ -23,4 +23,4 @@ export type UpgradeIssue = {
     suggestedVersion?: string;
 }
 
-export type FileIssues = Record</* groupId */string, UpgradeIssue>;
+export type FileIssues = Record</* packageId */string, UpgradeIssue>;
