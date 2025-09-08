@@ -51,7 +51,7 @@ class MetadataManager {
         if (groupId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
             return {
                 name: "Java Engine",
-                supportedVersion: ">=21",
+                supportedVersion: `>=${Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT}`,
             }
         }
         const packageId = groupId + ":" + artifactId;
