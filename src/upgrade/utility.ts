@@ -39,11 +39,3 @@ export function buildFixPrompt(issue: UpgradeIssue): string {
         }
     }
 }
-
-export function tryParse<T>(x: string): T | undefined {
-    try {
-        return JSON.parse(x)
-    } catch (_) {
-        return undefined
-    }
-}
