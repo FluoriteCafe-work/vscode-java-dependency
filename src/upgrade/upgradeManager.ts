@@ -65,7 +65,6 @@ class UpgradeManager {
         }
         const hasJavaError: boolean = await Jdtls.checkImportStatus();
         if (hasJavaError) {
-            console.log("JAVA ERR");
             return;
         }
 
