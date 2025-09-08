@@ -1,7 +1,7 @@
 import { commands, window, extensions } from "vscode";
 import type { FileIssues } from "../type";
 import { ExtensionName } from "../../constants";
-import { buildFixPrompt, buildMessage } from "../utlity";
+import { buildFixPrompt, buildMessage } from "../utility";
 import { Commands } from "../../commands";
 
 class NotificationManager {

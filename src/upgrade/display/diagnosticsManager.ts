@@ -1,7 +1,7 @@
 import { Diagnostic, DiagnosticSeverity, type Disposable, languages, Uri, Range } from "vscode";
 import type { FileIssues } from "../type";
 import { Upgrade } from "../../constants";
-import { buildMessage } from "../utlity";
+import { buildMessage } from "../utility";
 
 class DiagnosticsManager implements Disposable {
     private diagnostics = languages.createDiagnosticCollection('javaUpgrade');

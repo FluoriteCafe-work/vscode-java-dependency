@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
 import { UpgradeIssue, UpgradeReason } from "./type";
 
 export function buildMessage(issue: UpgradeIssue): string {
