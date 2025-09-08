@@ -2,8 +2,11 @@
 // Licensed under the MIT license.
 
 import * as path from "path";
-import { commands, Diagnostic, Extension, ExtensionContext, extensions, languages,
-    Range, tasks, TextDocument, TextEditor, Uri, window, workspace } from "vscode";
+import {
+    CodeActionKind,
+    commands, Diagnostic, Extension, ExtensionContext, extensions, languages,
+    Range, tasks, TextDocument, TextEditor, Uri, window, workspace
+} from "vscode";
 import { dispose as disposeTelemetryWrapper, initializeFromJsonFile, instrumentOperation, instrumentOperationAsVsCodeCommand, sendInfo } from "vscode-extension-telemetry-wrapper";
 import { Commands, contextManager } from "../extension.bundle";
 import { BuildTaskProvider } from "./tasks/build/buildTaskProvider";
@@ -20,9 +23,17 @@ import { DiagnosticProvider } from "./tasks/buildArtifact/migration/DiagnosticPr
 import { setContextForDeprecatedTasks, updateExportTaskType } from "./tasks/buildArtifact/migration/utils";
 import { CodeActionProvider } from "./tasks/buildArtifact/migration/CodeActionProvider";
 import { newJavaFile } from "./explorerCommands/new";
+import metadataManager from "./upgrade/metadataManager";
+import diagnosticsManager from "./upgrade/display/diagnosticsManager";
+import UpgradeCodeActionProvider from "./upgrade/upgradeCodeActionProvider";
+import upgradeManager from "./upgrade/upgradeManager";
 
 export async function activate(context: ExtensionContext): Promise<void> {
     contextManager.initialize(context);
+    upgradeManager.initialize();
+    metadataManager.tryRefreshMetadata(context).then(() => {
+        upgradeManager.scan();
+    });
     await initializeFromJsonFile(context.asAbsolutePath("./package.json"));
     await initExpService(context);
     await instrumentOperation("activation", activateExtension)(context);
@@ -43,6 +54,7 @@ async function activateExtension(_operationId: string, context: ExtensionContext
     context.subscriptions.push(new LibraryController(context));
     context.subscriptions.push(DependencyExplorer.getInstance(context));
     context.subscriptions.push(contextManager);
+    context.subscriptions.push(diagnosticsManager);
     context.subscriptions.push(syncHandler);
     context.subscriptions.push(tasks.registerTaskProvider(DeprecatedExportJarTaskProvider.type, new DeprecatedExportJarTaskProvider()));
     context.subscriptions.push(tasks.registerTaskProvider(BuildArtifactTaskProvider.exportJarType, new BuildArtifactTaskProvider()));
@@ -75,6 +87,16 @@ async function activateExtension(_operationId: string, context: ExtensionContext
         scheme: "file",
         pattern: "**/.vscode/tasks.json"
     }], new CodeActionProvider()));
+    context.subscriptions.push(languages.registerCodeActionsProvider(
+        {
+            language: "xml",
+            pattern: "**/pom.xml"
+        },
+        new UpgradeCodeActionProvider(),
+        {
+            providedCodeActionKinds: [CodeActionKind.QuickFix],
+        }
+    ));
     context.subscriptions.push(instrumentOperationAsVsCodeCommand(
         Commands.JAVA_UPDATE_DEPRECATED_TASK, async (document: TextDocument, range: Range) => {
             await updateExportTaskType(document, range);
