@@ -2,6 +2,8 @@ import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeA
 import { Upgrade } from "../constants";
 import { Commands } from "../commands";
 import metadataManager from "./metadataManager";
+import { buildFixPrompt, tryParse } from "./utility";
+import type { UpgradeIssue } from "./type";
 
 export default class UpgradeCodeActionProvider implements CodeActionProvider {
     provideCodeActions(_document: TextDocument, _range: Range | Selection, context: CodeActionContext, _token: CancellationToken): ProviderResult<(CodeAction | Command)[]> {
@@ -9,8 +11,11 @@ export default class UpgradeCodeActionProvider implements CodeActionProvider {
 
         for (const diagnostic of context.diagnostics) {
             if (diagnostic.source === Upgrade.PROMOTION_DIAGNOSTIC_SOURCE) {
-                const groupId = String(diagnostic.code);
-                const metadata = metadataManager.getDependencyMetadata(groupId);
+                const issue = tryParse<UpgradeIssue>(String(diagnostic.code));
+                if (!issue) {
+                    return;
+                }
+                const metadata = metadataManager.getDependencyMetadata(issue.packageId);
                 const action = new CodeAction(
                     metadata ?
                         `Fix: Upgrade ${metadata.name} with Java Upgrade Tool` :
@@ -21,7 +26,7 @@ export default class UpgradeCodeActionProvider implements CodeActionProvider {
                 action.command = {
                     title: "Upgrade",
                     command: Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL,
-                    arguments: [metadataManager.createPromptByGroupId(groupId ?? "")]
+                    arguments: [buildFixPrompt(issue)]
                 }
 
                 actions.push(action);
