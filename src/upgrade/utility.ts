@@ -32,10 +32,10 @@ export function buildFixPrompt(issue: UpgradeIssue): string {
             return [`Upgrade the package ${packageId} using Java Upgrade Tool.`, ...suffix].join(" ");
         }
         case UpgradeReason.CVE: {
-            return [`Upgrade the package ${packageId} to resolve CVE.`, ...suffix].join(" ");
+            return [`Upgrade the package ${packageId} to resolve CVE using Java Upgrade Tool.`, ...suffix].join(" ");
         }
         case UpgradeReason.ENGINE_TOO_OLD: {
-            return [`Upgrade Java version.`, ...suffix].join(" ");
+            return [`Upgrade Java version using Java Upgrade Tool.`, ...suffix].join(" ");
         }
     }
 }
