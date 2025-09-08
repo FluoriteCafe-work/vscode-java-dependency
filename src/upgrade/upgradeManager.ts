@@ -1,7 +1,8 @@
 import { CodeActionKind, commands, type ExtensionContext, extensions, languages, workspace, type WorkspaceFolder, type WorkspaceFoldersChangeEvent } from "vscode";
+import * as semver from 'semver'
 import { Jdtls } from "../java/jdtls";
 import { languageServerApiManager } from "../languageServerApi/languageServerApiManager";
-import type { INodeData } from "../java/nodeData";
+import { NodeKind, type INodeData } from "../java/nodeData";
 import issueManager from "./issueManager";
 import { ExtensionName, Upgrade } from "../constants";
 import { UpgradeReason } from "./type";
@@ -67,14 +68,34 @@ class UpgradeManager {
 
         const uri = folder.uri.toString();
         const projects = await Jdtls.getProjects(uri);
-        projects.forEach((project) => this.checkJavaVersion(project));
+        projects.forEach(async (project) => {
+            const pomPath = project.metaData?.PomPath as string | undefined;
+            if (!pomPath) {
+                return;
+            }
+            this.checkJavaVersion(project, pomPath);
+            const packageData = await Jdtls.getPackageData({ kind: NodeKind.Project, projectUri: project.uri });
+            packageData
+                .filter(x => x.kind === NodeKind.Container)
+                .forEach(async (packageContainer) => {
+                    const packages = await Jdtls.getPackageData({
+                        kind: NodeKind.Container,
+                        projectUri: project.uri,
+                        path: packageContainer.path,
+                    });
+                    packages.forEach(
+                        (pkg) => this.checkDependencyVersion(pkg, pomPath)
+                    );
+                });
+
+
+        });
 
     }
 
-    private checkJavaVersion(data: INodeData) {
+    private checkJavaVersion(data: INodeData, pomPath: string) {
         const javaVersion = data.metaData?.MaxSourceVersion as number | undefined;
-        const pomPath = data.metaData?.PomPath as string | undefined;
-        if (!pomPath || !javaVersion) {
+        if (!javaVersion) {
             return;
         }
         if (javaVersion < EARLIEST_JAVA_VERSION_NOT_TO_PROMPT) {
@@ -86,6 +107,31 @@ class UpgradeManager {
             });
         } else {
             issueManager.removeIssue(pomPath, Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE);
+        }
+    }
+
+    private checkDependencyVersion(data: INodeData, dependingPomPath: string) {
+        const versionString = data.metaData?.["maven.version"];
+        const groupId = data.metaData?.["maven.groupId"];
+        const supportedVersionDefinition = metadataManager.getDependencyMetadata(groupId);
+        if (!versionString || !groupId || !supportedVersionDefinition) {
+            return;
+        }
+        const currentVersion = semver.coerce(versionString);
+        if (!currentVersion) {
+            issueManager.removeIssue(dependingPomPath, groupId);
+            return;
+        }
+        if (!semver.satisfies(currentVersion, supportedVersionDefinition.supportedVersion)) {
+            issueManager.addIssue(dependingPomPath, {
+                packageId: groupId,
+                packageDisplayName: supportedVersionDefinition.name,
+                reason: UpgradeReason.END_OF_LIFE,
+                currentVersion: versionString,
+                suggestedVersion: "latest", // TODO
+            });
+        } else {
+            issueManager.removeIssue(dependingPomPath, groupId);
         }
     }
 
