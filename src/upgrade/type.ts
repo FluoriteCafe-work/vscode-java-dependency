@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
 export type MementoItem<T> = {
     lastUpdatedTs: number;
     data: T;

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
 import diagnosticsManager from "./display/diagnosticsManager";
 import notificationManager from "./display/notificationManager";
 import type { FileIssues, UpgradeIssue } from "./type";

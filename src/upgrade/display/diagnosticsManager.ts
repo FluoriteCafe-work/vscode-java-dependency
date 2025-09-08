@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
 import { Diagnostic, DiagnosticSeverity, type Disposable, languages, Uri, Range } from "vscode";
 import type { FileIssues } from "../type";
 import { Upgrade } from "../../constants";
