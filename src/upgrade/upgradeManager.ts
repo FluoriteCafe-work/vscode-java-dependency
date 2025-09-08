@@ -13,6 +13,7 @@ import { instrumentOperationAsVsCodeCommand } from "vscode-extension-telemetry-w
 import { Commands } from "../commands";
 import metadataManager from "./metadataManager";
 import UpgradeCodeActionProvider from "./upgradeCodeActionProvider";
+import { buildPackageId } from "./utility";
 
 const DEFAULT_UPGRADE_PROMPT = "Upgrade project dependency version with Java Upgrade Tool";
 
@@ -104,25 +105,26 @@ class UpgradeManager {
         const versionString = data.metaData?.["maven.version"];
         const groupId = data.metaData?.["maven.groupId"];
         const artifactId = data.metaData?.["maven.artifactId"];
+        const packageId = buildPackageId(groupId, artifactId);
         const supportedVersionDefinition = metadataManager.getDependencyMetadata(groupId, artifactId);
         if (!versionString || !groupId || !supportedVersionDefinition) {
             return;
         }
         const currentVersion = semver.coerce(versionString);
         if (!currentVersion) {
-            issueManager.removeIssue(dependingPomPath, groupId);
+            issueManager.removeIssue(dependingPomPath, packageId);
             return;
         }
         if (!semver.satisfies(currentVersion, supportedVersionDefinition.supportedVersion)) {
             issueManager.addIssue(dependingPomPath, {
-                packageId: groupId,
+                packageId: packageId,
                 packageDisplayName: supportedVersionDefinition.name,
                 reason: UpgradeReason.END_OF_LIFE,
                 currentVersion: versionString,
                 suggestedVersion: "latest", // TODO
             });
         } else {
-            issueManager.removeIssue(dependingPomPath, groupId);
+            issueManager.removeIssue(dependingPomPath, packageId);
         }
     }
 
