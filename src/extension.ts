@@ -23,17 +23,12 @@ import { DiagnosticProvider } from "./tasks/buildArtifact/migration/DiagnosticPr
 import { setContextForDeprecatedTasks, updateExportTaskType } from "./tasks/buildArtifact/migration/utils";
 import { CodeActionProvider } from "./tasks/buildArtifact/migration/CodeActionProvider";
 import { newJavaFile } from "./explorerCommands/new";
-import metadataManager from "./upgrade/metadataManager";
 import diagnosticsManager from "./upgrade/display/diagnosticsManager";
-import UpgradeCodeActionProvider from "./upgrade/upgradeCodeActionProvider";
 import upgradeManager from "./upgrade/upgradeManager";
 
 export async function activate(context: ExtensionContext): Promise<void> {
     contextManager.initialize(context);
-    upgradeManager.initialize();
-    metadataManager.tryRefreshMetadata(context).then(() => {
-        upgradeManager.scan();
-    });
+    upgradeManager.initialize(context);
     await initializeFromJsonFile(context.asAbsolutePath("./package.json"));
     await initExpService(context);
     await instrumentOperation("activation", activateExtension)(context);
@@ -87,16 +82,6 @@ async function activateExtension(_operationId: string, context: ExtensionContext
         scheme: "file",
         pattern: "**/.vscode/tasks.json"
     }], new CodeActionProvider()));
-    context.subscriptions.push(languages.registerCodeActionsProvider(
-        {
-            language: "xml",
-            pattern: "**/pom.xml"
-        },
-        new UpgradeCodeActionProvider(),
-        {
-            providedCodeActionKinds: [CodeActionKind.QuickFix],
-        }
-    ));
     context.subscriptions.push(instrumentOperationAsVsCodeCommand(
         Commands.JAVA_UPDATE_DEPRECATED_TASK, async (document: TextDocument, range: Range) => {
             await updateExportTaskType(document, range);

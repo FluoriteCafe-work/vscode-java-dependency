@@ -1,23 +1,51 @@
-import { workspace, WorkspaceFolder, type WorkspaceFoldersChangeEvent } from "vscode";
+import { CodeActionKind, commands, type ExtensionContext, extensions, languages, workspace, type WorkspaceFolder, type WorkspaceFoldersChangeEvent } from "vscode";
 import { Jdtls } from "../java/jdtls";
 import { languageServerApiManager } from "../languageServerApi/languageServerApiManager";
 import type { INodeData } from "../java/nodeData";
 import issueManager from "./issueManager";
-import { Upgrade } from "../constants";
+import { ExtensionName, Upgrade } from "../constants";
 import { UpgradeReason } from "./type";
+import { instrumentOperationAsVsCodeCommand } from "vscode-extension-telemetry-wrapper";
+import { Commands } from "../commands";
+import metadataManager from "./metadataManager";
+import UpgradeCodeActionProvider from "./upgradeCodeActionProvider";
 
 const EARLIEST_JAVA_VERSION_NOT_TO_PROMPT = 21;
+const DEFAULT_UPGRADE_PROMPT = "Upgrade project dependency version with Java Upgrade Tool";
 
 class UpgradeManager {
-    public initialize() {
-        workspace.workspaceFolders?.forEach((folder) =>
-            this.checkUpgradableComponents(folder)
-        );
-    }
+    public initialize(context: ExtensionContext) {
+        // Command to be used
+        context.subscriptions.push(instrumentOperationAsVsCodeCommand(Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL, (promptText?: string) => {
+            this.runUpgrade(promptText ?? DEFAULT_UPGRADE_PROMPT);
+        }));
 
-    public scan() {
+        // Event handler on workspace changes
         workspace.onDidChangeWorkspaceFolders(
             (e) => this.onDidChangeWorkspaceFolders(e)
+        );
+
+        // Quick Fix provider
+        context.subscriptions.push(languages.registerCodeActionsProvider(
+            {
+                language: "xml",
+                pattern: "**/pom.xml"
+            },
+            new UpgradeCodeActionProvider(),
+            {
+                providedCodeActionKinds: [CodeActionKind.QuickFix],
+            }
+        ));
+
+        // Metadata update & initial scan
+        metadataManager.tryRefreshMetadata(context).then(() => {
+            upgradeManager.scan();
+        });
+    }
+
+    private scan() {
+        workspace.workspaceFolders?.forEach((folder) =>
+            this.checkUpgradableComponents(folder)
         );
     }
 
@@ -59,6 +87,17 @@ class UpgradeManager {
         } else {
             issueManager.removeIssue(pomPath, Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE);
         }
+    }
+
+    private async runUpgrade(promptText: string) {
+        const hasJavaUpgradeToolExtension = !!extensions.getExtension(ExtensionName.JAVA_UPGRADE_TOOL);
+        if (!hasJavaUpgradeToolExtension) {
+            await commands.executeCommand("workbench.extensions.installExtension", ExtensionName.JAVA_UPGRADE_TOOL);
+        }
+        await commands.executeCommand("workbench.action.chat.open", {
+            query: promptText,
+            isPartialQuery: true
+        });
     }
 }
 
