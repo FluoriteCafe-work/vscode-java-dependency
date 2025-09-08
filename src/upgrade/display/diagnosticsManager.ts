@@ -22,7 +22,7 @@ class DiagnosticsManager implements Disposable {
                 DiagnosticSeverity.Warning
             );
 
-            diagnostic.code = groupId;
+            diagnostic.code = JSON.stringify(issue);
             diagnostic.source = Upgrade.PROMOTION_DIAGNOSTIC_SOURCE;
 
             return diagnostic;
