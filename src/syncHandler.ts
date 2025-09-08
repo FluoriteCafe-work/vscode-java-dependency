@@ -13,6 +13,7 @@ import { DataNode } from "./views/dataNode";
 import { ExplorerNode } from "./views/explorerNode";
 import { explorerNodeCache } from "./views/nodeCache/explorerNodeCache";
 import { Jdtls } from "./java/jdtls";
+import upgradeManager from "./upgrade/upgradeManager";
 
 const ENABLE_AUTO_REFRESH: string = "java.view.package.enableAutoRefresh";
 const DISABLE_AUTO_REFRESH: string = "java.view.package.disableAutoRefresh";
@@ -26,7 +27,7 @@ class SyncHandler implements Disposable {
         if (autoRefresh) {
             instrumentOperation(ENABLE_AUTO_REFRESH, () => this.enableAutoRefresh())();
         } else {
-            instrumentOperation(DISABLE_AUTO_REFRESH, () => {})();
+            instrumentOperation(DISABLE_AUTO_REFRESH, () => { })();
         }
     }
 
@@ -46,6 +47,7 @@ class SyncHandler implements Disposable {
 
         this.disposables.push(workspace.onDidChangeWorkspaceFolders(() => {
             this.refresh();
+            upgradeManager.scan();
         }));
 
         try {
@@ -122,7 +124,7 @@ class SyncHandler implements Disposable {
         } else {
             // in flat view
             if (path.extname(uri.fsPath) === ".java" && node.uri &&
-                    Uri.parse(node.uri).fsPath === path.dirname(uri.fsPath)) {
+                Uri.parse(node.uri).fsPath === path.dirname(uri.fsPath)) {
                 // if the returned node is direct parent of the input uri, refresh it.
                 return node;
             } else {

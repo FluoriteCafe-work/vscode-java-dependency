@@ -24,11 +24,6 @@ class UpgradeManager {
             this.runUpgrade(promptText ?? DEFAULT_UPGRADE_PROMPT);
         }));
 
-        // Event handler on workspace changes
-        workspace.onDidChangeWorkspaceFolders(
-            (e) => this.onDidChangeWorkspaceFolders(e)
-        );
-
         // Quick Fix provider
         context.subscriptions.push(languages.registerCodeActionsProvider(
             {
@@ -47,16 +42,10 @@ class UpgradeManager {
         });
     }
 
-    private scan() {
+    public scan() {
         workspace.workspaceFolders?.forEach((folder) =>
             this.checkUpgradableComponents(folder)
         );
-    }
-
-    private onDidChangeWorkspaceFolders(e: WorkspaceFoldersChangeEvent) {
-        e.added.forEach((folder) => {
-            this.checkUpgradableComponents(folder)
-        });
     }
 
     private async checkUpgradableComponents(folder: WorkspaceFolder) {
