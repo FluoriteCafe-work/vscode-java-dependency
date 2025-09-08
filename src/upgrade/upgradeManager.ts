@@ -14,7 +14,6 @@ import { Commands } from "../commands";
 import metadataManager from "./metadataManager";
 import UpgradeCodeActionProvider from "./upgradeCodeActionProvider";
 
-const EARLIEST_JAVA_VERSION_NOT_TO_PROMPT = 21;
 const DEFAULT_UPGRADE_PROMPT = "Upgrade project dependency version with Java Upgrade Tool";
 
 class UpgradeManager {
@@ -89,12 +88,12 @@ class UpgradeManager {
         if (!javaVersion) {
             return;
         }
-        if (javaVersion < EARLIEST_JAVA_VERSION_NOT_TO_PROMPT) {
+        if (javaVersion < Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT) {
             issueManager.addIssue(pomPath, {
                 packageId: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
                 reason: UpgradeReason.ENGINE_TOO_OLD,
                 currentVersion: String(javaVersion),
-                suggestedVersion: String(EARLIEST_JAVA_VERSION_NOT_TO_PROMPT),
+                suggestedVersion: String(Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT),
             });
         } else {
             issueManager.removeIssue(pomPath, Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE);
@@ -104,7 +103,8 @@ class UpgradeManager {
     private checkDependencyVersion(data: INodeData, dependingPomPath: string) {
         const versionString = data.metaData?.["maven.version"];
         const groupId = data.metaData?.["maven.groupId"];
-        const supportedVersionDefinition = metadataManager.getDependencyMetadata(groupId);
+        const artifactId = data.metaData?.["maven.artifactId"];
+        const supportedVersionDefinition = metadataManager.getDependencyMetadata(groupId, artifactId);
         if (!versionString || !groupId || !supportedVersionDefinition) {
             return;
         }
