@@ -58,12 +58,14 @@ class MetadataManager {
         }
         const packageId = buildPackageId(groupId, artifactId);
         const packageIdWithWildcardArtifactId = buildPackageId(groupId, "*");
+        return this.getDependencyMetadataByPackageId(packageId)
+            ?? this.getDependencyMetadataByPackageId(packageIdWithWildcardArtifactId);
+    }
+
+    public getDependencyMetadataByPackageId(packageId: string): DependencyCheckResult | undefined {
         return this.dependencyCheckMetadata[packageId] ? {
             ...this.dependencyCheckMetadata[packageId],
             rulePackageId: packageId,
-        } : this.dependencyCheckMetadata[packageIdWithWildcardArtifactId] ? {
-            ...this.dependencyCheckMetadata[packageIdWithWildcardArtifactId],
-            rulePackageId: packageIdWithWildcardArtifactId,
         } : undefined;
     }
 

@@ -18,7 +18,7 @@ export default class UpgradeCodeActionProvider implements CodeActionProvider {
                 if (!issue) {
                     return;
                 }
-                const metadata = metadataManager.getDependencyMetadata(issue.packageId);
+                const metadata = metadataManager.getDependencyMetadataByPackageId(issue.packageId);
                 const action = new CodeAction(
                     metadata ?
                         `Fix: Upgrade ${metadata.name} with Java Upgrade Tool` :
