@@ -19,12 +19,12 @@ export default class UpgradeCodeActionProvider implements CodeActionProvider {
                     continue;
                 }
 
-                const rulePackageId = String(diagnostic.code);
-                const issue = issueManager.getIssue(documentPath)?.[rulePackageId];
+                const packageId = String(diagnostic.code);
+                const issue = issueManager.getIssues(documentPath)?.[packageId];
                 if (!issue) {
                     continue;
                 }
-                const metadata = metadataManager.getMetadataByPackageId(issue.rulePackageId);
+                const metadata = metadataManager.getMetadataById(issue.packageId);
                 if (!metadata) {
                     continue;
                 }

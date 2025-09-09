@@ -14,7 +14,7 @@ class DiagnosticsManager implements Disposable {
     }
 
     public refresh(filePath: string, issues: FileIssues) {
-        this.diagnostics.set(Uri.parse(filePath), Object.entries(issues).map(([rulePackageId, issue]) => {
+        this.diagnostics.set(Uri.parse(filePath), Object.entries(issues).map(([packageId, issue]) => {
             const diagnostic = new Diagnostic(
                 // TODO: locate the actual version settings
                 new Range(0, 0, 0, 0),
@@ -22,7 +22,7 @@ class DiagnosticsManager implements Disposable {
                 DiagnosticSeverity.Warning
             );
 
-            diagnostic.code = rulePackageId;
+            diagnostic.code = packageId;
             diagnostic.source = Upgrade.PROMOTION_DIAGNOSTIC_SOURCE;
 
             return diagnostic;

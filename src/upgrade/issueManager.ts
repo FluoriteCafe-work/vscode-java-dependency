@@ -11,25 +11,25 @@ class IssueManager {
 
 
     public addIssue(pomPath: string, issue: UpgradeIssue) {
-        const { rulePackageId } = issue;
+        const { packageId } = issue;
         const normalizedPath = normalizePath(pomPath);
         if (!this.issuesList[normalizedPath]) {
             this.issuesList[normalizedPath] = {};
         }
-        this.issuesList[normalizedPath][rulePackageId] = issue;
+        this.issuesList[normalizedPath][packageId] = issue;
         this.refreshDisplay(normalizedPath, this.issuesList[normalizedPath]);
     }
 
-    public removeIssue(pomPath: string, rulePackageId: string) {
+    public removeIssue(pomPath: string, packageId: string) {
         const normalizedPath = normalizePath(pomPath);
-        if (!this.issuesList[normalizedPath] || !this.issuesList[normalizedPath][rulePackageId]) {
+        if (!this.issuesList[normalizedPath] || !this.issuesList[normalizedPath][packageId]) {
             return;
         }
-        delete this.issuesList[normalizedPath][rulePackageId];
+        delete this.issuesList[normalizedPath][packageId];
         this.refreshDisplay(normalizedPath, this.issuesList[normalizedPath]);
     }
 
-    public getIssue(filePath: string): FileIssues {
+    public getIssues(filePath: string): FileIssues {
         const normalizedPath = normalizePath(filePath);
         return this.issuesList[normalizedPath] ?? {};
     }

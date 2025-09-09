@@ -11,9 +11,9 @@ import { Upgrade } from "../constants";
 export default class UpgradeCodeLensProvider implements CodeLensProvider {
     provideCodeLenses(document: TextDocument, _token: CancellationToken): ProviderResult<CodeLens[]> {
         const documentPath = document.uri.toString();
-        const issues = issueManager.getIssue(documentPath);
+        const issues = issueManager.getIssues(documentPath);
         return Object.values(issues).map((issue) => {
-            const metadata = metadataManager.getMetadataByPackageId(issue.rulePackageId);
+            const metadata = metadataManager.getMetadataById(issue.packageId);
             if (!metadata) {
                 return;
             }

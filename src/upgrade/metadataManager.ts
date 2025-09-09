@@ -48,25 +48,22 @@ async function httpsGet(urlString: string): Promise<string> {
 class MetadataManager {
     private dependencyCheckMetadata: DependencyCheckMetadata = {};
 
-    public getDependencyMetadata(groupId: string, artifactId: string): DependencyCheckResult | undefined {
-        const packageId = buildPackageId(groupId, artifactId);
-        const packageIdWithWildcardArtifactId = buildPackageId(groupId, "*");
-        return this.getMetadataByPackageId(packageId)
-            ?? this.getMetadataByPackageId(packageIdWithWildcardArtifactId);
-    }
+    public getMetadataById(givenPackageId: string): DependencyCheckResult | undefined {
+        const splits = givenPackageId.split(":", 2);
+        const groupId = splits[0];
+        const artifactId = splits[1] ?? "";
 
-    public getMetadataByPackageId(packageId: string): DependencyCheckResult | undefined {
-        if (packageId === `${Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE}:*`) {
+        if (groupId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
             return {
                 name: Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE,
                 supportedVersion: `>=${Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT}`,
-                rulePackageId: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
             };
         }
-        return this.dependencyCheckMetadata[packageId] ? {
-            ...this.dependencyCheckMetadata[packageId],
-            rulePackageId: packageId,
-        } : undefined;
+
+        const packageId = buildPackageId(groupId, artifactId);
+        const packageIdWithWildcardArtifactId = buildPackageId(groupId, "*");
+        return this.dependencyCheckMetadata[packageId]
+            ?? this.dependencyCheckMetadata[packageIdWithWildcardArtifactId];
     }
 
     public async tryRefreshMetadata(context: ExtensionContext) {

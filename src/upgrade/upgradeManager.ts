@@ -99,7 +99,7 @@ class UpgradeManager {
         }
         if (javaVersion < Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT) {
             issueManager.addIssue(pomPath, {
-                rulePackageId: buildPackageId(Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE, "*"),
+                packageId: buildPackageId(Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE, "*"),
                 reason: UpgradeReason.ENGINE_TOO_OLD,
                 currentVersion: String(javaVersion),
                 suggestedVersion: String(Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT),
@@ -113,25 +113,26 @@ class UpgradeManager {
         const versionString = data.metaData?.["maven.version"];
         const groupId = data.metaData?.["maven.groupId"];
         const artifactId = data.metaData?.["maven.artifactId"];
-        const supportedVersionDefinition = metadataManager.getDependencyMetadata(groupId, artifactId);
+        const packageId = buildPackageId(groupId, artifactId);
+        const supportedVersionDefinition = metadataManager.getMetadataById(packageId);
         if (!versionString || !groupId || !supportedVersionDefinition) {
             return;
         }
         const currentVersion = semver.coerce(versionString);
         if (!currentVersion) {
-            issueManager.removeIssue(dependingPomPath, supportedVersionDefinition.rulePackageId);
+            issueManager.removeIssue(dependingPomPath, packageId);
             return;
         }
         if (!semver.satisfies(currentVersion, supportedVersionDefinition.supportedVersion)) {
             issueManager.addIssue(dependingPomPath, {
-                rulePackageId: supportedVersionDefinition.rulePackageId,
+                packageId,
                 packageDisplayName: supportedVersionDefinition.name,
                 reason: UpgradeReason.END_OF_LIFE,
                 currentVersion: versionString,
                 suggestedVersion: "latest", // TODO
             });
         } else {
-            issueManager.removeIssue(dependingPomPath, supportedVersionDefinition.rulePackageId);
+            issueManager.removeIssue(dependingPomPath, packageId);
         }
     }
 

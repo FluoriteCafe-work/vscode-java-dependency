@@ -7,7 +7,7 @@ export type MementoItem<T> = {
 }
 
 export type DependencyCheckItem = { name: string, supportedVersion: string };
-export type DependencyCheckResult = DependencyCheckItem & { rulePackageId: string };
+export type DependencyCheckResult = DependencyCheckItem;
 export type DependencyCheckMetadata = Record<string, DependencyCheckItem>;
 
 export enum UpgradeReason {
@@ -17,11 +17,11 @@ export enum UpgradeReason {
 }
 
 export type UpgradeIssue = {
-    rulePackageId: string;
+    packageId: string;
     packageDisplayName?: string;
     reason: UpgradeReason;
     currentVersion: string;
     suggestedVersion?: string;
 }
 
-export type FileIssues = Record</* rulePackageId */string, UpgradeIssue>;
+export type FileIssues = Record</* packageId */string, UpgradeIssue>;
