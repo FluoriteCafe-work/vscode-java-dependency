@@ -4,7 +4,8 @@
 import { Diagnostic, DiagnosticSeverity, type Disposable, languages, Uri, Range } from "vscode";
 import type { FileIssues } from "../type";
 import { Upgrade } from "../../constants";
-import { buildMessage } from "../utility";
+import { buildMessage, normalizePath } from "../utility";
+import pomDataManager from "../pomDataManager";
 
 class DiagnosticsManager implements Disposable {
     private diagnostics = languages.createDiagnosticCollection('javaUpgrade');
@@ -15,9 +16,9 @@ class DiagnosticsManager implements Disposable {
 
     public refresh(filePath: string, issues: FileIssues) {
         this.diagnostics.set(Uri.parse(filePath), Object.entries(issues).map(([packageId, issue]) => {
+            const range = pomDataManager.getPomRange(normalizePath(filePath), issue.packageId);
             const diagnostic = new Diagnostic(
-                // TODO: locate the actual version settings
-                new Range(0, 0, 0, 0),
+                range ?? new Range(0, 0, 0, 0),
                 buildMessage(issue),
                 DiagnosticSeverity.Warning
             );

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
-import { Uri } from "vscode";
-import { UpgradeIssue, UpgradeReason } from "./type";
+import { Range, Uri } from "vscode";
+import { type UpgradeIssue, UpgradeReason } from "./type";
 
 export function buildMessage(issue: UpgradeIssue): string {
     const { packageId, packageDisplayName, currentVersion, reason } = issue;
@@ -48,4 +48,8 @@ export function buildPackageId(groupId: string, artifactId: string): string {
 
 export function normalizePath(path: string): string {
     return Uri.parse(path).toString();
+}
+
+export function toFirstLine(range: Range): Range {
+    return new Range(range.start.line, 0, range.start.line, 0);
 }

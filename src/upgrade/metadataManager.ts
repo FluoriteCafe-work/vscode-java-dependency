@@ -57,7 +57,7 @@ class MetadataManager {
             return {
                 name: Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE,
                 supportedVersion: `>=${Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT}`,
-                packageRuleUsed: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
+                packageRuleUsed: buildPackageId(Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE, "*"),
             };
         }
 

@@ -3,36 +3,57 @@
 
 import { CancellationToken, CodeLens, CodeLensProvider, ProviderResult, Range, TextDocument } from "vscode";
 import { Commands } from "../commands";
-import { buildFixPrompt } from "./utility";
+import { buildFixPrompt, normalizePath, toFirstLine } from "./utility";
 import issueManager from "./issueManager";
 import metadataManager from "./metadataManager";
 import { Upgrade } from "../constants";
+import pomDataManager from "./pomDataManager";
 
 export default class UpgradeCodeLensProvider implements CodeLensProvider {
     provideCodeLenses(document: TextDocument, _token: CancellationToken): ProviderResult<CodeLens[]> {
         const documentPath = document.uri.toString();
         const issues = issueManager.getIssues(documentPath);
-        return Object.values(issues).map((issue) => {
+        const topOfFileCodeLens: CodeLens[] = [];
+        const inlineCodeLens: CodeLens[] = [];
+        Object.values(issues).forEach((issue) => {
             const metadata = metadataManager.getMetadataById(issue.packageId);
             if (!metadata) {
                 return;
             }
-            const codeLens = new CodeLens(new Range(0, 0, 0, 0), {
-                title: "Upgrade",
-                command: Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL,
-                tooltip: `Upgrade ${metadata.name} with GitHub Copilot`,
-                arguments: [buildFixPrompt(issue)],
-            });
+            const range = pomDataManager.getPomRange(normalizePath(documentPath), issue.packageId);
+            if (range) {
+                const codeLens = new CodeLens(
+                    toFirstLine(range),
+                    {
+                        title: "Upgrade",
+                        command: Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL,
+                        tooltip: `Upgrade ${metadata.name} with GitHub Copilot`,
+                        arguments: [buildFixPrompt(issue)],
+                    });
+                inlineCodeLens.push(codeLens);
+            } else {
+                const codeLens = new CodeLens(
+                    new Range(0, 0, 0, 0),
+                    {
+                        title: "Upgrade",
+                        command: Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL,
+                        tooltip: `Upgrade ${metadata.name} with GitHub Copilot`,
+                        arguments: [buildFixPrompt(issue)],
+                    });
+                topOfFileCodeLens.push(codeLens);
+            }
+        });
 
-            return codeLens;
-        })
-            .filter((x): x is CodeLens => Boolean(x))
-            .sort((a, b) => {
-                // always show Java engine upgrade first
+        return [
+            ...topOfFileCodeLens.sort((a, b) => {
+                // always show Java engine upgrade first, if any
                 if (a.command?.title === `Upgrade ${Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE}`) return -1;
                 if (b.command?.title === `Upgrade ${Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE}`) return 1;
                 return (a.command?.title ?? "") < (b.command?.title ?? "") ? -1 : 1;
             })
-            .slice(0, 1); // give 1 Code Lens action at most
+                // give 1 top-of-file Code Lens action at most
+                .slice(0, 1),
+            ...inlineCodeLens,
+        ];
     }
 }

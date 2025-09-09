@@ -15,6 +15,7 @@ import metadataManager from "./metadataManager";
 import UpgradeCodeActionProvider from "./upgradeCodeActionProvider";
 import UpgradeCodeLensProvider from "./upgradeCodeLensProvider";
 import { buildPackageId } from "./utility";
+import pomDataManager from "./pomDataManager";
 
 const DEFAULT_UPGRADE_PROMPT = "Upgrade Java project dependency";
 
@@ -72,6 +73,7 @@ class UpgradeManager {
             if (!pomPath) {
                 return;
             }
+            await pomDataManager.parsePom(pomPath);
             this.checkJavaVersion(project, pomPath);
             const packageData = await Jdtls.getPackageData({ kind: NodeKind.Project, projectUri: project.uri });
             packageData
