@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
-import { CodeActionKind, commands, type ExtensionContext, extensions, languages, workspace, type WorkspaceFolder } from "vscode";
+import { CodeActionKind, commands, type ExtensionContext, languages, workspace, type WorkspaceFolder } from "vscode";
 import * as semver from 'semver'
 import { Jdtls } from "../java/jdtls";
 import { languageServerApiManager } from "../languageServerApi/languageServerApiManager";
 import { NodeKind, type INodeData } from "../java/nodeData";
 import issueManager from "./issueManager";
-import { ExtensionName, Upgrade } from "../constants";
+import { Upgrade } from "../constants";
 import { UpgradeReason } from "./type";
 import { instrumentOperationAsVsCodeCommand } from "vscode-extension-telemetry-wrapper";
 import { Commands } from "../commands";
@@ -136,10 +136,6 @@ class UpgradeManager {
     }
 
     private async runUpgrade(promptText: string) {
-        const hasJavaUpgradeToolExtension = !!extensions.getExtension(ExtensionName.JAVA_UPGRADE_TOOL);
-        if (!hasJavaUpgradeToolExtension) {
-            await commands.executeCommand("workbench.extensions.installExtension", ExtensionName.JAVA_UPGRADE_TOOL);
-        }
         await commands.executeCommand("workbench.action.chat.open", {
             query: promptText,
             isPartialQuery: true

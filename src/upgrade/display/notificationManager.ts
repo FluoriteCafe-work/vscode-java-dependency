@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
-import { commands, window, extensions } from "vscode";
+import { commands, window } from "vscode";
 import type { FileIssues } from "../type";
-import { ExtensionName } from "../../constants";
 import { buildFixPrompt, buildMessage } from "../utility";
 import { Commands } from "../../commands";
 
@@ -22,10 +21,8 @@ class NotificationManager {
             return;
         }
 
-        const hasJavaUpgradeToolExtension = !!extensions.getExtension(ExtensionName.JAVA_UPGRADE_TOOL);
-        const buttonText = hasJavaUpgradeToolExtension ? "Upgrade" : "Install extension and upgrade";
-        const selection = await window.showInformationMessage(
-            buildMessage(targetIssue), buttonText);
+        const buttonText = "Upgrade";
+        const selection = await window.showInformationMessage(buildMessage(targetIssue), buttonText);
         this.hasShown = true;
         if (selection === buttonText) {
             commands.executeCommand(Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL, buildFixPrompt(targetIssue));
