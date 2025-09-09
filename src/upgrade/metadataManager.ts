@@ -49,13 +49,6 @@ class MetadataManager {
     private dependencyCheckMetadata: DependencyCheckMetadata = {};
 
     public getDependencyMetadata(groupId: string, artifactId: string): DependencyCheckResult | undefined {
-        if (groupId === Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE) {
-            return {
-                name: "Java Engine",
-                supportedVersion: `>=${Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT}`,
-                rulePackageId: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
-            }
-        }
         const packageId = buildPackageId(groupId, artifactId);
         const packageIdWithWildcardArtifactId = buildPackageId(groupId, "*");
         return this.getDependencyMetadataByPackageId(packageId)
@@ -63,6 +56,13 @@ class MetadataManager {
     }
 
     public getDependencyMetadataByPackageId(packageId: string): DependencyCheckResult | undefined {
+        if (packageId === `${Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE}:*`) {
+            return {
+                name: "Java Engine",
+                supportedVersion: `>=${Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT}`,
+                rulePackageId: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
+            };
+        }
         return this.dependencyCheckMetadata[packageId] ? {
             ...this.dependencyCheckMetadata[packageId],
             rulePackageId: packageId,

@@ -13,6 +13,7 @@ import { instrumentOperationAsVsCodeCommand } from "vscode-extension-telemetry-w
 import { Commands } from "../commands";
 import metadataManager from "./metadataManager";
 import UpgradeCodeActionProvider from "./upgradeCodeActionProvider";
+import UpgradeCodeLensProvider from "./upgradeCodeLensProvider";
 import { buildPackageId } from "./utility";
 
 const DEFAULT_UPGRADE_PROMPT = "Upgrade project dependency version with Java Upgrade Tool";
@@ -34,6 +35,13 @@ class UpgradeManager {
             {
                 providedCodeActionKinds: [CodeActionKind.QuickFix],
             }
+        ));
+        context.subscriptions.push(languages.registerCodeLensProvider(
+            {
+                language: "xml",
+                pattern: "**/pom.xml"
+            },
+            new UpgradeCodeLensProvider(),
         ));
 
         // Metadata update & initial scan
@@ -91,7 +99,7 @@ class UpgradeManager {
         }
         if (javaVersion < Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT) {
             issueManager.addIssue(pomPath, {
-                packageId: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
+                packageId: buildPackageId(Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE, "*"),
                 reason: UpgradeReason.ENGINE_TOO_OLD,
                 currentVersion: String(javaVersion),
                 suggestedVersion: String(Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT),
