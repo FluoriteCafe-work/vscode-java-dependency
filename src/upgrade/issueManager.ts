@@ -4,30 +4,38 @@
 import diagnosticsManager from "./display/diagnosticsManager";
 import notificationManager from "./display/notificationManager";
 import type { FileIssues, UpgradeIssue } from "./type";
+import { normalizePath } from "./utility";
 
 class IssueManager {
     private issuesList: Record</* filePath */ string, FileIssues> = {};
 
 
-    public addIssue(filePath: string, issue: UpgradeIssue) {
+    public addIssue(pomPath: string, issue: UpgradeIssue) {
         const { packageId } = issue;
-        if (!this.issuesList[filePath]) {
-            this.issuesList[filePath] = {};
+        const normalizedPath = normalizePath(pomPath);
+        if (!this.issuesList[normalizedPath]) {
+            this.issuesList[normalizedPath] = {};
         }
-        this.issuesList[filePath][packageId] = issue;
-        this.refreshDisplay(filePath, this.issuesList[filePath]);
+        this.issuesList[normalizedPath][packageId] = issue;
+        this.refreshDisplay(normalizedPath, this.issuesList[normalizedPath]);
     }
 
-    public removeIssue(filePath: string, packageId: string) {
-        if (!this.issuesList[filePath] || !this.issuesList[filePath][packageId]) {
+    public removeIssue(pomPath: string, packageId: string) {
+        const normalizedPath = normalizePath(pomPath);
+        if (!this.issuesList[normalizedPath] || !this.issuesList[normalizedPath][packageId]) {
             return;
         }
-        delete this.issuesList[filePath][packageId];
-        this.refreshDisplay(filePath, this.issuesList[filePath]);
+        delete this.issuesList[normalizedPath][packageId];
+        this.refreshDisplay(normalizedPath, this.issuesList[normalizedPath]);
     }
 
-    private refreshDisplay(filePath: string, issues: FileIssues) {
-        diagnosticsManager.refresh(filePath, issues);
+    public getIssue(filePath: string): FileIssues {
+        const normalizedPath = normalizePath(filePath);
+        return this.issuesList[normalizedPath] ?? {};
+    }
+
+    private refreshDisplay(normalizedPath: string, issues: FileIssues) {
+        diagnosticsManager.refresh(normalizedPath, issues);
         notificationManager.refresh(issues);
     }
 }

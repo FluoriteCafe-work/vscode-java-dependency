@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
+import { Uri } from "vscode";
 import { UpgradeIssue, UpgradeReason } from "./type";
 
 export function buildMessage(issue: UpgradeIssue): string {
@@ -42,4 +43,8 @@ export function buildFixPrompt(issue: UpgradeIssue): string {
 
 export function buildPackageId(groupId: string, artifactId: string): string {
     return `${groupId}:${artifactId}`;
+}
+
+export function normalizePath(path: string): string {
+    return Uri.file(path).toString();
 }

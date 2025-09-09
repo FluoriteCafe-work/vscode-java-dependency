@@ -2,13 +2,12 @@
 // Licensed under the MIT license.
 
 import { Diagnostic, DiagnosticSeverity, type Disposable, languages, Uri, Range } from "vscode";
-import type { FileIssues, UpgradeIssue } from "../type";
+import type { FileIssues } from "../type";
 import { Upgrade } from "../../constants";
 import { buildMessage } from "../utility";
 
 class DiagnosticsManager implements Disposable {
     private diagnostics = languages.createDiagnosticCollection('javaUpgrade');
-    private diagIssueMap = new WeakMap<Diagnostic, UpgradeIssue>();
 
     dispose() {
         this.diagnostics.dispose();
@@ -22,17 +21,12 @@ class DiagnosticsManager implements Disposable {
                 buildMessage(issue),
                 DiagnosticSeverity.Warning
             );
-            this.diagIssueMap.set(diagnostic, issue);
 
             diagnostic.code = packageId;
             diagnostic.source = Upgrade.PROMOTION_DIAGNOSTIC_SOURCE;
 
             return diagnostic;
         }));
-    }
-
-    public getIssue(diagnostic: Diagnostic) {
-        return this.diagIssueMap.get(diagnostic);
     }
 }
 

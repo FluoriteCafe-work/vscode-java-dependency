@@ -6,17 +6,23 @@ import { Upgrade } from "../constants";
 import { Commands } from "../commands";
 import metadataManager from "./metadataManager";
 import { buildFixPrompt } from "./utility";
-import diagnosticsManager from "./display/diagnosticsManager";
+import issueManager from "./issueManager";
 
 export default class UpgradeCodeActionProvider implements CodeActionProvider {
     provideCodeActions(_document: TextDocument, _range: Range | Selection, context: CodeActionContext, _token: CancellationToken): ProviderResult<(CodeAction | Command)[]> {
         const actions: CodeAction[] = [];
+        const documentPath = _document.uri.toString();
 
         for (const diagnostic of context.diagnostics) {
             if (diagnostic.source === Upgrade.PROMOTION_DIAGNOSTIC_SOURCE) {
-                const issue = diagnosticsManager.getIssue(diagnostic);
+                if (!diagnostic.code) {
+                    continue;
+                }
+
+                const packageId = String(diagnostic.code);
+                const issue = issueManager.getIssue(documentPath)?.[packageId];
                 if (!issue) {
-                    return;
+                    continue;
                 }
                 const metadata = metadataManager.getDependencyMetadataByPackageId(issue.packageId);
                 const action = new CodeAction(
