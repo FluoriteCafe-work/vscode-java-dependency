@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
-import { CodeActionKind, commands, type ExtensionContext, extensions, languages, workspace, type WorkspaceFolder, type WorkspaceFoldersChangeEvent } from "vscode";
+import { CodeActionKind, commands, type ExtensionContext, extensions, languages, workspace, type WorkspaceFolder } from "vscode";
 import * as semver from 'semver'
 import { Jdtls } from "../java/jdtls";
 import { languageServerApiManager } from "../languageServerApi/languageServerApiManager";
