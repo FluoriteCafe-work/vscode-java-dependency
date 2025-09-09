@@ -28,11 +28,12 @@ export default class UpgradeCodeActionProvider implements CodeActionProvider {
                 if (!metadata) {
                     continue;
                 }
-                const action = new CodeAction(
-                    `Fix: Upgrade ${metadata.name}`,
-                    CodeActionKind.QuickFix
-                );
+                const actionName = `Fix: Upgrade ${metadata.name}`;
+                if (actions.findIndex(x => x.title === actionName) !== -1) {
+                    continue;
+                }
 
+                const action = new CodeAction(actionName, CodeActionKind.QuickFix);
                 action.command = {
                     title: "Upgrade",
                     command: Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL,
