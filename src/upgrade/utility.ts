@@ -22,7 +22,8 @@ export function buildMessage(issue: UpgradeIssue): string {
 }
 
 export function buildFixPrompt(issue: UpgradeIssue): string {
-    const { packageId, reason, suggestedVersion } = issue;
+    const { packageId, packageDisplayName, reason, suggestedVersion } = issue;
+    const name = packageDisplayName ?? packageId;
 
     const suffix = [
         ...(suggestedVersion ? [`The target version is ${suggestedVersion}.`] : [])
@@ -30,10 +31,10 @@ export function buildFixPrompt(issue: UpgradeIssue): string {
 
     switch (reason) {
         case UpgradeReason.END_OF_LIFE: {
-            return [`Upgrade the package ${packageId} using Java Upgrade Tool.`, ...suffix].join(" ");
+            return [`Upgrade the package ${name} using Java Upgrade Tool.`, ...suffix].join(" ");
         }
         case UpgradeReason.CVE: {
-            return [`Upgrade the package ${packageId} to resolve CVE using Java Upgrade Tool.`, ...suffix].join(" ");
+            return [`Upgrade the package ${name} to resolve CVE using Java Upgrade Tool.`, ...suffix].join(" ");
         }
         case UpgradeReason.ENGINE_TOO_OLD: {
             return [`Upgrade Java version using Java Upgrade Tool.`, ...suffix].join(" ");
