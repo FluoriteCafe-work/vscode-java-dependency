@@ -57,13 +57,13 @@ class MetadataManager {
             return {
                 name: Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE,
                 supportedVersion: `>=${Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT}`,
+                packageRuleUsed: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
             };
         }
 
         const packageId = buildPackageId(groupId, artifactId);
         const packageIdWithWildcardArtifactId = buildPackageId(groupId, "*");
-        return this.dependencyCheckMetadata[packageId]
-            ?? this.dependencyCheckMetadata[packageIdWithWildcardArtifactId];
+        return this.getMetadata(packageId) ?? this.getMetadata(packageIdWithWildcardArtifactId);
     }
 
     public async tryRefreshMetadata(context: ExtensionContext) {
@@ -84,6 +84,12 @@ class MetadataManager {
         } else {
             this.dependencyCheckMetadata = metadata.data ?? {};
         }
+    }
+
+    private getMetadata(packageRuleUsed: string): DependencyCheckResult | undefined {
+        return this.dependencyCheckMetadata[packageRuleUsed] ? {
+            ...this.dependencyCheckMetadata[packageRuleUsed], packageRuleUsed
+        } : undefined;
     }
 }
 

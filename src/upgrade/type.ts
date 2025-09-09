@@ -7,7 +7,7 @@ export type MementoItem<T> = {
 }
 
 export type DependencyCheckItem = { name: string, supportedVersion: string };
-export type DependencyCheckResult = DependencyCheckItem;
+export type DependencyCheckResult = DependencyCheckItem & { packageRuleUsed: string };
 export type DependencyCheckMetadata = Record<string, DependencyCheckItem>;
 
 export enum UpgradeReason {
