@@ -9,9 +9,9 @@ import { buildFixPrompt } from "./utility";
 import issueManager from "./issueManager";
 
 export default class UpgradeCodeActionProvider implements CodeActionProvider {
-    provideCodeActions(_document: TextDocument, _range: Range | Selection, context: CodeActionContext, _token: CancellationToken): ProviderResult<(CodeAction | Command)[]> {
+    provideCodeActions(document: TextDocument, _range: Range | Selection, context: CodeActionContext, _token: CancellationToken): ProviderResult<(CodeAction | Command)[]> {
         const actions: CodeAction[] = [];
-        const documentPath = _document.uri.toString();
+        const documentPath = document.uri.toString();
 
         for (const diagnostic of context.diagnostics) {
             if (diagnostic.source === Upgrade.PROMOTION_DIAGNOSTIC_SOURCE) {
