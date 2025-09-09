@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
+import type { Range } from "vscode";
+
 export type MementoItem<T> = {
     lastUpdatedTs: number;
     data: T;
@@ -22,6 +24,12 @@ export type UpgradeIssue = {
     reason: UpgradeReason;
     currentVersion: string;
     suggestedVersion?: string;
+}
+
+export type Dependency = {
+    packageId: string;
+    location: Range;
+    version?: string;
 }
 
 export type FileIssues = Record</* packageId */string, UpgradeIssue>;
