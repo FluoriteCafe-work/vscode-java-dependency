@@ -46,5 +46,5 @@ export function buildPackageId(groupId: string, artifactId: string): string {
 }
 
 export function normalizePath(path: string): string {
-    return Uri.file(path).toString();
+    return Uri.parse(path).toString();
 }
