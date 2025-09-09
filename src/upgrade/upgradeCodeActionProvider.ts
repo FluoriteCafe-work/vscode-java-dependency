@@ -25,10 +25,11 @@ export default class UpgradeCodeActionProvider implements CodeActionProvider {
                     continue;
                 }
                 const metadata = metadataManager.getMetadataByPackageId(issue.rulePackageId);
+                if (!metadata) {
+                    continue;
+                }
                 const action = new CodeAction(
-                    metadata ?
-                        `Fix: Upgrade ${metadata.name} with Java Upgrade Tool` :
-                        `Fix: Upgrade with Java Upgrade Tool`,
+                    `Fix: Upgrade ${metadata.name}`,
                     CodeActionKind.QuickFix
                 );
 

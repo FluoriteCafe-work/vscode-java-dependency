@@ -10,13 +10,13 @@ export function buildMessage(issue: UpgradeIssue): string {
 
     switch (reason) {
         case UpgradeReason.END_OF_LIFE: {
-            return `Your project dependency ${name} (${currentVersion}) is in end-of-life. Consider upgrading using Java Upgrade Tool for better security and performance.`
+            return `Your project dependency ${name} (${currentVersion}) is in end-of-life. Consider upgrading using GitHub Copilot for better security and performance.`
         }
         case UpgradeReason.CVE: {
-            return `Your project dependency ${name} (${currentVersion}) has CVE. Consider upgrading using Java Upgrade Tool for better security.`
+            return `Your project dependency ${name} (${currentVersion}) has CVE. Consider upgrading using GitHub Copilot for better security.`
         }
         case UpgradeReason.ENGINE_TOO_OLD: {
-            return `Your project Java version (${currentVersion}) is too old. Consider upgrading using Java Upgrade Tool for better performance and features.`
+            return `Your project Java version (${currentVersion}) is too old. Consider upgrading using GitHub Copilot for better performance and features.`
         }
     }
 }

@@ -16,7 +16,7 @@ import UpgradeCodeActionProvider from "./upgradeCodeActionProvider";
 import UpgradeCodeLensProvider from "./upgradeCodeLensProvider";
 import { buildPackageId } from "./utility";
 
-const DEFAULT_UPGRADE_PROMPT = "Upgrade project dependency version with Java Upgrade Tool";
+const DEFAULT_UPGRADE_PROMPT = "Upgrade Java project dependency";
 
 class UpgradeManager {
     public initialize(context: ExtensionContext) {

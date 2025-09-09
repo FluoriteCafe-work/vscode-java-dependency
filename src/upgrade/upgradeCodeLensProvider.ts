@@ -18,8 +18,9 @@ export default class UpgradeCodeLensProvider implements CodeLensProvider {
                 return;
             }
             const codeLens = new CodeLens(new Range(0, 0, 0, 0), {
-                title: `Upgrade ${metadata.name} with Java Upgrade Tool`,
+                title: "Upgrade",
                 command: Commands.VIEW_TRIGGER_JAVA_UPGRADE_TOOL,
+                tooltip: `Upgrade ${metadata.name} with GitHub Copilot`,
                 arguments: [buildFixPrompt(issue)],
             });
 
@@ -28,8 +29,8 @@ export default class UpgradeCodeLensProvider implements CodeLensProvider {
             .filter((x): x is CodeLens => Boolean(x))
             .sort((a, b) => {
                 // always show Java engine upgrade first
-                if (a.command?.title === `Upgrade ${Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE} with Java Upgrade Tool`) return -1;
-                if (b.command?.title === `Upgrade ${Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE} with Java Upgrade Tool`) return 1;
+                if (a.command?.title === `Upgrade ${Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE}`) return -1;
+                if (b.command?.title === `Upgrade ${Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE}`) return 1;
                 return (a.command?.title ?? "") < (b.command?.title ?? "") ? -1 : 1;
             })
             .slice(0, 1); // give 1 Code Lens action at most

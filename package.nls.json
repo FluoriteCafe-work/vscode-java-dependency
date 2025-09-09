@@ -37,7 +37,7 @@
   "contributes.commands.java.view.package.deleteFilePermanently": "Delete Permanently",
   "contributes.commands.java.view.fileExplorer.newPackage": "New Java Package...",
   "contributes.commands.java.view.menus.file.newJavaClass": "New Java File",
-  "contributes.commands.java.view.triggerJavaUpgradeTool": "Upgrade with Java Upgrade Tool",
+  "contributes.commands.java.view.triggerJavaUpgradeTool": "Upgrade dependencies",
   "contributes.submenus.javaProject.new": "New",
   "configuration.java.dependency.showMembers": "Show the members in the explorer",
   "configuration.java.dependency.syncWithFolderExplorer": "Link Java Projects Explorer with the active editor",
