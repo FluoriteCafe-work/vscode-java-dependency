@@ -51,14 +51,14 @@ class MetadataManager {
     public getDependencyMetadata(groupId: string, artifactId: string): DependencyCheckResult | undefined {
         const packageId = buildPackageId(groupId, artifactId);
         const packageIdWithWildcardArtifactId = buildPackageId(groupId, "*");
-        return this.getDependencyMetadataByPackageId(packageId)
-            ?? this.getDependencyMetadataByPackageId(packageIdWithWildcardArtifactId);
+        return this.getMetadataByPackageId(packageId)
+            ?? this.getMetadataByPackageId(packageIdWithWildcardArtifactId);
     }
 
-    public getDependencyMetadataByPackageId(packageId: string): DependencyCheckResult | undefined {
+    public getMetadataByPackageId(packageId: string): DependencyCheckResult | undefined {
         if (packageId === `${Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE}:*`) {
             return {
-                name: "Java Engine",
+                name: Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE,
                 supportedVersion: `>=${Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT}`,
                 rulePackageId: Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE,
             };
