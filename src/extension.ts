@@ -3,7 +3,6 @@
 
 import * as path from "path";
 import {
-    CodeActionKind,
     commands, Diagnostic, Extension, ExtensionContext, extensions, languages,
     Range, tasks, TextDocument, TextEditor, Uri, window, workspace
 } from "vscode";
