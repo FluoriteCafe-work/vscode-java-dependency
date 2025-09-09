@@ -32,6 +32,6 @@ export default class UpgradeCodeLensProvider implements CodeLensProvider {
                 if (b.command?.title === `Upgrade ${Upgrade.DIAGNOSTICS_NAME_FOR_JAVA_ENGINE} with Java Upgrade Tool`) return 1;
                 return (a.command?.title ?? "") < (b.command?.title ?? "") ? -1 : 1;
             })
-            .slice(0, 2); // give 2 actions at most
+            .slice(0, 1); // give 1 Code Lens action at most
     }
 }
