@@ -11,21 +11,21 @@ class IssueManager {
 
 
     public addIssue(pomPath: string, issue: UpgradeIssue) {
-        const { packageId } = issue;
+        const { rulePackageId } = issue;
         const normalizedPath = normalizePath(pomPath);
         if (!this.issuesList[normalizedPath]) {
             this.issuesList[normalizedPath] = {};
         }
-        this.issuesList[normalizedPath][packageId] = issue;
+        this.issuesList[normalizedPath][rulePackageId] = issue;
         this.refreshDisplay(normalizedPath, this.issuesList[normalizedPath]);
     }
 
-    public removeIssue(pomPath: string, packageId: string) {
+    public removeIssue(pomPath: string, rulePackageId: string) {
         const normalizedPath = normalizePath(pomPath);
-        if (!this.issuesList[normalizedPath] || !this.issuesList[normalizedPath][packageId]) {
+        if (!this.issuesList[normalizedPath] || !this.issuesList[normalizedPath][rulePackageId]) {
             return;
         }
-        delete this.issuesList[normalizedPath][packageId];
+        delete this.issuesList[normalizedPath][rulePackageId];
         this.refreshDisplay(normalizedPath, this.issuesList[normalizedPath]);
     }
 

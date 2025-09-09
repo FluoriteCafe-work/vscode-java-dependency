@@ -13,7 +13,7 @@ export default class UpgradeCodeLensProvider implements CodeLensProvider {
         const documentPath = document.uri.toString();
         const issues = issueManager.getIssue(documentPath);
         return Object.values(issues).map((issue) => {
-            const metadata = metadataManager.getMetadataByPackageId(issue.packageId);
+            const metadata = metadataManager.getMetadataByPackageId(issue.rulePackageId);
             if (!metadata) {
                 return;
             }

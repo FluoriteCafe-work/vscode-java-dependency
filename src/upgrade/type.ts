@@ -17,11 +17,11 @@ export enum UpgradeReason {
 }
 
 export type UpgradeIssue = {
-    packageId: string;
+    rulePackageId: string;
     packageDisplayName?: string;
     reason: UpgradeReason;
     currentVersion: string;
     suggestedVersion?: string;
 }
 
-export type FileIssues = Record</* packageId */string, UpgradeIssue>;
+export type FileIssues = Record</* rulePackageId */string, UpgradeIssue>;

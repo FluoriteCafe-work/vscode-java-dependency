@@ -99,7 +99,7 @@ class UpgradeManager {
         }
         if (javaVersion < Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT) {
             issueManager.addIssue(pomPath, {
-                packageId: buildPackageId(Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE, "*"),
+                rulePackageId: buildPackageId(Upgrade.DIAGNOSTICS_GROUP_ID_FOR_JAVA_ENGINE, "*"),
                 reason: UpgradeReason.ENGINE_TOO_OLD,
                 currentVersion: String(javaVersion),
                 suggestedVersion: String(Upgrade.EARLIEST_JAVA_VERSION_NOT_TO_PROMPT),
@@ -113,26 +113,25 @@ class UpgradeManager {
         const versionString = data.metaData?.["maven.version"];
         const groupId = data.metaData?.["maven.groupId"];
         const artifactId = data.metaData?.["maven.artifactId"];
-        const packageId = buildPackageId(groupId, artifactId);
         const supportedVersionDefinition = metadataManager.getDependencyMetadata(groupId, artifactId);
         if (!versionString || !groupId || !supportedVersionDefinition) {
             return;
         }
         const currentVersion = semver.coerce(versionString);
         if (!currentVersion) {
-            issueManager.removeIssue(dependingPomPath, packageId);
+            issueManager.removeIssue(dependingPomPath, supportedVersionDefinition.rulePackageId);
             return;
         }
         if (!semver.satisfies(currentVersion, supportedVersionDefinition.supportedVersion)) {
             issueManager.addIssue(dependingPomPath, {
-                packageId: supportedVersionDefinition.rulePackageId,
+                rulePackageId: supportedVersionDefinition.rulePackageId,
                 packageDisplayName: supportedVersionDefinition.name,
                 reason: UpgradeReason.END_OF_LIFE,
                 currentVersion: versionString,
                 suggestedVersion: "latest", // TODO
             });
         } else {
-            issueManager.removeIssue(dependingPomPath, packageId);
+            issueManager.removeIssue(dependingPomPath, supportedVersionDefinition.rulePackageId);
         }
     }
 
