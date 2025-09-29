@@ -12,6 +12,7 @@ import notificationManager from "./display/notificationManager";
 import { Settings } from "../settings";
 import assessmentManager from "./assessmentManager";
 import { checkOrInstallAppModExtensionForUpgrade, checkOrPopupToInstallAppModExtensionForModernization } from "./utility";
+import type { DependencyDescription, UpgradeIssue } from "./type";
 
 const DEFAULT_UPGRADE_PROMPT = "Upgrade Java project dependency to latest version.";
 
@@ -38,6 +39,12 @@ class UpgradeManager {
                 `${ExtensionName.APP_MODERNIZATION_EXTENSION_NAME} extension is required to modernize Java projects. Would you like to install it and modernize this project?`,
                 "Install Extension and Modernize");
             await commands.executeCommand("workbench.view.extension.azureJavaMigrationExplorer");
+        }));
+
+        // Read dependency list from other extensions
+        context.subscriptions.push(instrumentOperationAsVsCodeCommand(Commands.JAVA_CHECK_DEPENDENCY_LIST_ISSUES, (deps: DependencyDescription[]) => {
+            const issues = deps.map(assessmentManager.getDependencyIssue).filter((x): x is UpgradeIssue => Boolean(x));
+            UpgradeManager.renderIssues(issues);
         }));
 
         UpgradeManager.scan();
@@ -68,10 +75,14 @@ class UpgradeManager {
 
                 if (workspaceIssues.length > 0) {
                     // only show one issue in notifications
-                    notificationManager.render(workspaceIssues);
+                    UpgradeManager.renderIssues(workspaceIssues);
                 }
             }
         ))();
+    }
+
+    private static renderIssues(issues: UpgradeIssue[]) {
+        notificationManager.render(issues);
     }
 }
 

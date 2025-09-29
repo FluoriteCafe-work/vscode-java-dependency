@@ -136,6 +136,8 @@ export namespace Commands {
 
     export const JAVA_UPGRADE_WITH_COPILOT = "_java.upgradeWithCopilot";
 
+    export const JAVA_CHECK_DEPENDENCY_LIST_ISSUES = "_java.checkDependencyListIssues";
+
     /**
      * Commands from Visual Studio Code
      */
