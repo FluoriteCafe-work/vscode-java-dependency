@@ -4,7 +4,7 @@
 import * as semver from 'semver';
 import { Jdtls } from "../java/jdtls";
 import { NodeKind, type INodeData } from "../java/nodeData";
-import { type DependencyCheckItem, UpgradeReason, type UpgradeIssue } from "./type";
+import { type DependencyCheckItem, UpgradeReason, type UpgradeIssue, type DependencyDescription } from "./type";
 import { DEPENDENCY_JAVA_RUNTIME } from "./dependency.metadata";
 import { Upgrade } from '../constants';
 import { buildPackageId } from './utility';
@@ -59,17 +59,28 @@ function getUpgradeForDependency(versionString: string, supportedVersionDefiniti
     return null;
 }
 
-function getDependencyIssue(data: INodeData): UpgradeIssue | null {
-    const versionString = data.metaData?.["maven.version"];
-    const groupId = data.metaData?.["maven.groupId"];
-    const artifactId = data.metaData?.["maven.artifactId"];
+function getDependencyIssue(dep: DependencyDescription): UpgradeIssue | null {
+    const {groupId, artifactId, version } = dep;
     const packageId = buildPackageId(groupId, artifactId);
     const supportedVersionDefinition = metadataManager.getMetadataById(packageId);
-    if (!versionString || !groupId || !supportedVersionDefinition) {
+    if (!version || !groupId || !supportedVersionDefinition) {
         return null;
     }
 
-    return getUpgradeForDependency(versionString, supportedVersionDefinition, packageId);
+    return getUpgradeForDependency(version, supportedVersionDefinition, packageId);
+}
+
+function getDependencyIssueFromNode(data: INodeData): UpgradeIssue | null {
+    const version = data.metaData?.["maven.version"];
+    const groupId = data.metaData?.["maven.groupId"];
+    const artifactId = data.metaData?.["maven.artifactId"];
+    if (!version || !groupId || !artifactId) {
+        return null;
+    }
+
+    return getDependencyIssue({
+        groupId, artifactId, version,
+    })
 }
 
 async function getDependencyIssues(projectNode: INodeData): Promise<UpgradeIssue[]> {
@@ -84,7 +95,7 @@ async function getDependencyIssues(projectNode: INodeData): Promise<UpgradeIssue
                     path: packageContainer.path,
                 });
 
-                return packages.map(getDependencyIssue).filter((x): x is UpgradeIssue => Boolean(x));
+                return packages.map(getDependencyIssueFromNode).filter((x): x is UpgradeIssue => Boolean(x));
             })
     );
 
@@ -136,4 +147,5 @@ async function getWorkspaceIssues(workspaceFolderUri: string): Promise<UpgradeIs
 
 export default {
     getWorkspaceIssues,
+    getDependencyIssue,
 };
